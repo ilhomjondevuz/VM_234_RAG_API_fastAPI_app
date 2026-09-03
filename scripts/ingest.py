@@ -1,12 +1,11 @@
 import json
 from pathlib import Path
 
-import ollama
-
 from app.infrastructure.chroma import get_collection
+from app.infrastructure.ollama import create_embedding
 
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parents[1]
 
 CHUNKS_PATH = (
     BASE_DIR
@@ -16,58 +15,68 @@ CHUNKS_PATH = (
     / "chunks.json"
 )
 
-EMBEDDING_MODEL = "nomic-embed-text:latest"
-
 
 def load_chunks() -> list[dict]:
-    """chunks.json faylini o'qiydi."""
+    """
+    chunks.json faylini o'qiydi.
+    """
 
-    with open(CHUNKS_PATH, "r", encoding="utf-8") as file:
+    with open(
+        CHUNKS_PATH,
+        "r",
+        encoding="utf-8",
+    ) as file:
         return json.load(file)
 
 
-def create_embedding(text: str) -> list[float]:
-    """Matn uchun embedding vector yaratadi."""
-
-    response = ollama.embeddings(
-        model=EMBEDDING_MODEL,
-        prompt=text,
-    )
-
-    return response["embedding"]
-
-
 def ingest():
-    """Chunklarni embedding qilib ChromaDB'ga yuklaydi."""
+    """
+    chunks.json dagi barcha chunklarni:
+
+        text
+          ↓
+        embedding
+          ↓
+        ChromaDB
+
+    ko'rinishida saqlaydi.
+    """
 
     chunks = load_chunks()
 
     collection = get_collection()
 
     print(f"Jami chunklar: {len(chunks)}")
+    print(f"Collection: {collection.name}")
+    print()
 
+    ids = []
     documents = []
     embeddings = []
     metadatas = []
-    ids = []
 
     for index, chunk in enumerate(chunks):
+
         text = chunk["text"]
 
         print(
-            f"Embedding yaratilmoqda: "
-            f"{index + 1}/{len(chunks)}"
+            f"[{index + 1}/{len(chunks)}] "
+            f"Embedding yaratilmoqda..."
         )
 
         embedding = create_embedding(text)
 
+        ids.append(
+            f"qaror_234_chunk_{index}"
+        )
+
         documents.append(text)
+
         embeddings.append(embedding)
 
-        metadata = chunk.get("metadata", {})
-        metadatas.append(metadata)
-
-        ids.append(f"qaror_234_chunk_{index}")
+        metadatas.append(
+            chunk.get("metadata", {})
+        )
 
     collection.upsert(
         ids=ids,
@@ -77,9 +86,11 @@ def ingest():
     )
 
     print()
-    print("Embeddinglar ChromaDB'ga saqlandi.")
+    print("================================")
+    print("INGESTION YAKUNLANDI")
+    print("================================")
     print(f"Collection: {collection.name}")
-    print(f"Jami saqlangan chunklar: {collection.count()}")
+    print(f"Chunklar: {collection.count()}")
 
 
 if __name__ == "__main__":

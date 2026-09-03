@@ -15,11 +15,8 @@ COLLECTION_NAME = "vm_234_qaror"
 
 def get_chroma_client():
     """
-    ChromaDB persistent client yaratadi.
-
-    Ma'lumotlar:
-        data/chroma/
-    papkasida saqlanadi.
+    Persistent ChromaDB client yaratadi.
+    Ma'lumotlar data/chroma/ ichida saqlanadi.
     """
 
     CHROMA_PERSIST_DIRECTORY.mkdir(
@@ -35,16 +32,17 @@ def get_chroma_client():
 def get_collection() -> Collection:
     """
     234-son qaror uchun ChromaDB collection'ni
-    yaratadi yoki mavjud bo'lsa qaytaradi.
+    yaratadi yoki mavjud collection'ni qaytaradi.
     """
 
     client = get_chroma_client()
 
-    collection = client.get_or_create_collection(
+    return client.get_or_create_collection(
         name=COLLECTION_NAME,
         metadata={
-            "description": "O'zbekiston Respublikasi Vazirlar Mahkamasining 234-son qarori"
+            "description": (
+                "O'zbekiston Respublikasi "
+                "Vazirlar Mahkamasining 234-son qarori"
+            )
         },
     )
-
-    return collection
