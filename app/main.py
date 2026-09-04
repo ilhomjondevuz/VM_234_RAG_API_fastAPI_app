@@ -1,6 +1,8 @@
 from environs import Env
 from fastapi import FastAPI
 
+from app.api.routes.chat import chat_router
+
 env = Env()
 env.read_env()
 
@@ -12,6 +14,8 @@ app = FastAPI(
         "234-son qarori asosida savollarga javob beruvchi RAG API"
     )
 )
+
+app.include_router(chat_router)
 
 @app.get("/health")
 async def health() -> dict[str, str]:

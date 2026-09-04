@@ -3,14 +3,14 @@ from pathlib import Path
 import chromadb
 from chromadb.api.models.Collection import Collection
 
+from app.core.config import settings
+
 
 BASE_DIR = Path(__file__).resolve().parents[2]
 
 CHROMA_PERSIST_DIRECTORY = (
-    BASE_DIR / "data" / "chroma"
+    BASE_DIR / settings.chroma_persist_directory
 )
-
-COLLECTION_NAME = "vm_234_qaror"
 
 
 def get_chroma_client():
@@ -38,7 +38,7 @@ def get_collection() -> Collection:
     client = get_chroma_client()
 
     return client.get_or_create_collection(
-        name=COLLECTION_NAME,
+        name=settings.chroma_collection_name,
         metadata={
             "description": (
                 "O'zbekiston Respublikasi "

@@ -1,8 +1,6 @@
 import ollama
 
-
-EMBEDDING_MODEL = "nomic-embed-text:latest"
-LLM_MODEL = "qwen2.5:7b"
+from app.core.config import settings
 
 
 def create_embedding(text: str) -> list[float]:
@@ -11,7 +9,7 @@ def create_embedding(text: str) -> list[float]:
     """
 
     response = ollama.embeddings(
-        model=EMBEDDING_MODEL,
+        model=settings.embedding_model,
         prompt=text,
     )
 
@@ -24,7 +22,7 @@ def generate_answer(prompt: str) -> str:
     """
 
     response = ollama.chat(
-        model=LLM_MODEL,
+        model=settings.ollama_model,
         messages=[
             {
                 "role": "user",
