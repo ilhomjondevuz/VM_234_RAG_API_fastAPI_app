@@ -1,6 +1,6 @@
 from app.promts.rag_promt import build_rag_prompt
 from app.services.llm_service import generate_rag_answer
-from app.services.ratrieval_service import retrieve_relevant_chunks
+from app.services.retrieval_service import retrieve_relevant_chunks
 
 
 def answer_question(question: str) -> dict:
